@@ -1,0 +1,23 @@
+python -m venv .env
+source .env/bin/activate
+deactivate
+
+pip install --upgrade frida
+pip install --upgrade frida-tools
+
+pip install frida-tools=a.b.c
+pip install frida==x.y.z
+
+独立环境安装全局python工具,互相依赖隔离
+pipx install xxx
+pipx uninstall package_name
+
+frida-ls ls目录
+frida-ls-devices ls设备
+
+-U 连USB设备
+-a 运行中的进程
+
+frida-ps -U -a | grep Gadget
+frida-trace -U Gadget -m "*[*ViewController viewDidLoad]"
+
