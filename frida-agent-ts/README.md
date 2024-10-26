@@ -17,3 +17,8 @@ $ npm run watch
 
 And use an editor like Visual Studio Code for code completion and instant
 type-checking feedback.
+
+
+mac app:
+frida KaiCDemo -l frida-agent-ts/_agent.js
+

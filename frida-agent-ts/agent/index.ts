@@ -25,7 +25,7 @@ Interceptor.attach(Module.getExportByName(null, "open"), {
     }
 });
 
-Interceptor.attach(ptr("0x10087fde4"), {
+Interceptor.attach(ptr("0x10c965190"), {
     onEnter(args) {
         let arg0 = args[0].toInt32();
         let arg1 = args[1].readCString();
