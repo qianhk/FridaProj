@@ -9,6 +9,7 @@ KaiLog.log(`Process.arch=${Process.arch}`); // arm x64
 // Hook 大法，拦截器的使用 (iOS) https://bbs.kanxue.com/thread-259424.htm
 // Frida学习笔记（iOS为主） https://blog.csdn.net/Morphy_Amo/article/details/121758208
 // frida-all-in-one https://github.com/hookmaster/frida-all-in-one
+// Frida Android hook https://eternalsakura13.com/2020/07/04/frida/
 
 const header = Memory.alloc(16);
 header
