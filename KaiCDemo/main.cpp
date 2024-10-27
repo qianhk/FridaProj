@@ -2,7 +2,7 @@
 #include <unistd.h>
 #include <iostream>
 
-size_t testFun(int n, const char *s) {
+extern "C" size_t testFun(int n, const char *s) {
     printf("Number: %d, str = %s\n", n, s);
     return strlen(s);
 }
@@ -15,7 +15,7 @@ int fun1() {
     while (i < 1 * 1000 * 1000) {
         size_t returnValue = testFun(i++, str);
         printf("returnValue=%zu\n", returnValue);
-        sleep(1);
+        sleep(5);
     }
     return 0;
 }

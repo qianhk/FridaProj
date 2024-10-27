@@ -22,3 +22,6 @@ type-checking feedback.
 mac app:
 frida KaiCDemo -l frida-agent-ts/_agent.js
 
+-f TARGET, --file TARGET  spawn FILE
+frida -U -l test.js -f net.ioshacker.CrackMe
+
