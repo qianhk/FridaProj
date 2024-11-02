@@ -24,6 +24,8 @@ frida-ls-devices ls设备
 frida-ps -U -a | grep Gadget
 frida-trace -U Gadget -m "*[*ViewController viewDidLoad]"
 
+frida-trace -U -p 52362 -m "-[ZaTestListViewController viewDidLoad]"
+
 连iPhone上进程
 frida -U -f njnu.kai.KaiDemo -l frida-agent-ts/_agent.js
 

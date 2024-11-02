@@ -1,7 +1,14 @@
 import {KaiLog} from "../utils/kai_log.js";
 import path from "path";
 import {KaiUtils} from "../utils/kai_utils.js";
-import {lookOcModuleBaseAddress, ocInvokeFunction, ocTestClass, ocTestEntry, ocTestInstance} from "./oc_test.js";
+import {
+    lookOcModuleBaseAddress,
+    objcApiResolverTest,
+    ocInvokeFunction,
+    ocTestClass,
+    ocTestEntry,
+    ocTestInstance
+} from "./oc_test.js";
 
 console.log('\n\n\n');
 KaiLog.log('Kai Script loaded successfully.');
@@ -28,8 +35,10 @@ Process.getModuleByName("libSystem.B.dylib")
 
 Interceptor.attach(Module.getExportByName(null, "open"), {
     onEnter(args) {
-        const path = args[0].readUtf8String();
-        KaiLog.log(`open() path="${path}"`);
+        const path = args[0].readUtf8String() ?? "";
+        if (path.indexOf('Kai') >= 0) {
+            KaiLog.log(`open() path="${path}"`);
+        }
     }
 });
 
@@ -57,6 +66,7 @@ if (macOsProgram) {
 } else {
     ocTestEntry();
     lookOcModuleBaseAddress();
+    objcApiResolverTest();
     // ocTestClass();
     ocTestInstance();
     ocInvokeFunction();
