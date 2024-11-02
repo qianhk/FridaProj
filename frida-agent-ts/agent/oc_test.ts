@@ -96,7 +96,7 @@ const BlackClassPrefixList: string[] = ["_", "UI", "PU", "AK", "PS", "FLEX", "PU
     , "PX", "Web", "PDF", "AX", "WML", "TRV", "FC", "Place", "WK", "PLL", "PX", "OB", "SL", "SL", "DOC", "SwiftUI"
     , "Object", "PK", "MK", "GL"];
 
-const BlackMethodPrefixList: string[] = [""]
+const BlackMethodPrefixList: string[] = ["_", "- _", "+ _"]
 
 export const lookOcModuleBaseAddress = () => {
     const moduleName = "KaiDemo";
@@ -176,8 +176,8 @@ export const ocTestInstance = () => {
     KaiLog.log(`target class is: ${class1}`);
     let methods = class1.$methods;
     for (let method of methods) {
-        if (method.includes("view")) {
-            KaiLog.log(`target class method has view is: ${method}`);
+        if (method.includes("view") && !KaiUtils.stringHasPrefixWithCertList(method, BlackMethodPrefixList)) {
+            KaiLog.log(`target method has view is: ${method}`);
         }
     }
     let hooking = class1[_methodName]
