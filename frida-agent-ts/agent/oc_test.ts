@@ -165,7 +165,7 @@ export const ocTestClass = () => {
 
 export const objcApiResolverTest = () => {
     let resolver = new ApiResolver("objc");
-    let matches = resolver.enumerateMatches('-[ZaTestListViewController viewDidLoad]');
+    let matches = resolver.enumerateMatches('-[GCDTestViewController sellTicketEntry:]');
     for (let match of matches) {
         KaiLog.log(`matchName: ${match.name} address: ${match.address} size:${match.size}`)
         Interceptor.attach(match.address, {
@@ -176,18 +176,25 @@ export const objcApiResolverTest = () => {
                 console.log(`arg0: ${arg0}`);
                 let arg1 = args[1]; //selector
                 console.log(`arg1: ${arg1}`);
-                // let arg2 = args[2];
-                // console.log(`arg2: ${arg2}`);
+                let arg2 = args[2];
+                console.log(`arg2: ${arg2}`);
                 // let arg3 = args[3];
                 // console.log(`arg3: ${arg3}`);
                 // let arg4 = args[4];
                 // console.log(`arg4: ${arg4}`);
                 let classObj = new ObjC.Object(args[0]); // self
-                KaiLog.log(`classObj: ${classObj}`);
+                KaiLog.log(`className=${classObj.$className} classObj: ${classObj}`);
                 let methodName = args[1].readUtf8String(); // selector
                 KaiLog.log(`methodName: ${methodName}`);
-                // let argInfo = args[3].readCString();
-                // KaiLog.log(`argInfo: ${argInfo}`);
+                let argInfo = new ObjC.Object(args[2]);
+                KaiLog.log(`argInfo className=${argInfo.$className}: ${argInfo}`);
+                let argToInt32 = argInfo.toString(); //NSNumber是bool时toInt32转换的内容不对
+                KaiLog.log(`argToInt32=${argToInt32}`);
+                if (argToInt32 === "0") {
+                    let trueNumber = ObjC.classes.NSNumber.numberWithBool_(1);
+                    args[2] = trueNumber;
+                    KaiLog.log(`new argInfo className=${trueNumber.$className}: ${trueNumber}`);
+                }
             },
             onLeave(returnValue) {
                 KaiLog.log(`apiResolver onLeave, returnValue=${returnValue}`);
