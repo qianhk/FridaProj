@@ -25,10 +25,12 @@ frida-ps -U -a | grep Gadget
 frida-trace -U Gadget -m "*[*ViewController viewDidLoad]"
 
 连iPhone上进程
-frida -U -f com.example.android --no-pause -l _agent.js
+frida -U -f njnu.kai.KaiDemo -l frida-agent-ts/_agent.js
 
 ## objection Runtime Mobile Exploration
 pip3 install objection
+
+https://github.com/sensepost/objection
 
 objection操作
 https://mabin004.github.io/2020/08/13/objection%E6%93%8D%E4%BD%9C/
@@ -57,7 +59,15 @@ memory list modules
 memory list exports libssl.so
 memory list exports Xxx --json exports.json
 
+object的命令执行结果是无法grep的，可以使用objection run xxx | grep yyy的方式，如（会导致explore中的命令退出，因为看起来重启app了）
+objection -g cn.damai.iphone.KaiDemoDc run memory list modules | grep c++
+
 命令是memory dump all from_base，这部分内容与下文脱壳部分有重叠，我们在脱壳部分介绍用法。
+
+memory dump all /tmp/dump dump所有内存
+比较大，如1.8G。
+memory dump from_base 指定地址和大小dump内存
+
 
 搜索整个内存
 命令是memory search --string --offsets-only，这部分也与下文脱壳部分有重叠，我们在脱壳部分详细介绍用法。

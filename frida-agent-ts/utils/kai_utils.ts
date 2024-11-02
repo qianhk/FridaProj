@@ -80,6 +80,16 @@ const getRandomNum = (min: number, max: number): number => {
     return min + Math.round(rand * range);
 }
 
+const stringHasPrefixWithCertList = (str: string, list: string[]): boolean => {
+    for (let _p of list) {
+        if (str.startsWith(_p)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
 export const KaiUtils = {
     sleep,
     setProcessExitHandler,
@@ -87,4 +97,5 @@ export const KaiUtils = {
     asyncInsureExecute,
     isUint8ArrayEqual,
     getRandomNum,
+    stringHasPrefixWithCertList,
 }

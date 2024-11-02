@@ -1,8 +1,9 @@
 import {KaiLog} from "../utils/kai_log.js";
 import path from "path";
 import {KaiUtils} from "../utils/kai_utils.js";
-import {ocTestClass, ocTestInstance} from "./oc_test.js";
+import {lookOcModuleBaseAddress, ocInvokeFunction, ocTestClass, ocTestEntry, ocTestInstance} from "./oc_test.js";
 
+console.log('\n\n\n');
 KaiLog.log('Kai Script loaded successfully.');
 KaiLog.log(`Process.arch=${Process.arch}`); // arm x64
 
@@ -34,26 +35,32 @@ Interceptor.attach(Module.getExportByName(null, "open"), {
 
 KaiLog.log(`ObjC.available=${ObjC.available}`)
 
-const moduleName = "KaiCDemo";
-let baseAddress = Module.findBaseAddress(moduleName);
-KaiLog.log("\n" + "base : " + baseAddress);
-if (baseAddress != null) {
-    console.log(hexdump(baseAddress), {
-        length: 16,
-        header: true,
-        ansi: true,
-    })
-    let fun_addr = baseAddress.add(0x1190);
-    KaiLog.log(`fun_addr : ${fun_addr}`);
-    console.log(hexdump(fun_addr), {
-        length: 16,
-        header: true,
-        ansi: true,
-    })
+let macOsProgram = false;
+if (macOsProgram) {
+    const moduleName = "KaiCDemo";
+    let baseAddress = Module.findBaseAddress(moduleName);
+    KaiLog.log("\n" + "base : " + baseAddress);
+    if (baseAddress != null) {
+        console.log(hexdump(baseAddress), {
+            length: 16,
+            header: true,
+            ansi: true,
+        })
+        let fun_addr = baseAddress.add(0x1190);
+        KaiLog.log(`fun_addr : ${fun_addr}`);
+        console.log(hexdump(fun_addr), {
+            length: 16,
+            header: true,
+            ansi: true,
+        })
+    }
+} else {
+    ocTestEntry();
+    lookOcModuleBaseAddress();
+    // ocTestClass();
+    ocTestInstance();
+    ocInvokeFunction();
 }
-
-// ocTestClass();
-// ocTestInstance();
 
 let testFunPointer = Module.findExportByName(null, "testFun");
 KaiLog.log(`testFunPointer=${testFunPointer}`);
