@@ -46,41 +46,7 @@ Memory.readU32(args[0].add(4));
 var moduleName = "comic-universal";
 console.log("\n" + "base : " + Module.findBaseAddress(moduleName));
 
-枚举所有的类
-for (var className in ObjC.classes)
-    {
-        if (ObjC.classes.hasOwnProperty(className))
-        {
-            send(className);
-        }
-}
 
-
-枚举一个类的所有method
-if (ObjC.available)
-{
-    try
-    {
-        var className = "NSURL";
-        var methods = eval('ObjC.classes.' + className + '.$methods');
-        for (var i = 0; i < methods.length; i++)
-        {
-            try
-            {
-                if (methods[i].indexOf("fileURLWithPath") > -1)
-                console.log("[-] "+methods[i]);
-            }
-            catch(err)
-            {
-                console.log("[!] Exception1: " + err.message);
-            }
-        }
-    }
-    catch(err)
-    {
-        console.log("[!] Exception2: " + err.message);
-    }
-}
  */
 
 export const ocTestEntry = () => {
@@ -311,6 +277,9 @@ export const ocTestZaVcMethodInstance = () => {
 export const ocTestZaVcMethodInstance2 = () => {
     let hooking = ObjC.classes['ZaTestListViewController']['- combineObject:dic:array:'] //Student NSDictionary NSArray => NSDictionary
     KaiLog.log(`hooking combineObjectDicArray type ${typeof hooking} is: ${hooking} imp=${hooking.implementation}`);
+    // #add的这个偏移是通过IDA的静态地址相减得到的
+    // var avmpSignAddr = rpcV1SignAddr.add(0x1DCE);
+    // console.log('avmpSignAddr: ' + avmpSignAddr);
     Interceptor.attach(hooking.implementation, {
         onEnter(args) {
             KaiLog.log(`instance combineObjectDicArray method onEnter`);
@@ -357,4 +326,12 @@ export const ocInvokeFunction = () => {
     // let address = Module.findExportByName('libsqlite3.dylib', 'sqlite3_sql');
     // let sql = new NativeFunction(address, 'char', ['pointer']);
     // sql(statement);
+    let hooking = ObjC.classes['KaiStudent']['- giveSomething:']
+    KaiLog.log(`hooking KaiStudent's fun type ${typeof hooking} is: ${hooking} imp=${hooking.implementation}`);
+    let stuObj = ObjC.classes['KaiStudent'].new();
+    stuObj.setName_("fridaName");
+    stuObj.setAge_(666);
+    stuObj.setNick_("fridaNickName");
+    let resultObj = stuObj.giveSomething_("abc");
+    KaiLog.log(`resultObj ${resultObj.$className}: ${resultObj}`);
 }
