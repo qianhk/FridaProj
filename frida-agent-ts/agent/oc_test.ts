@@ -216,7 +216,7 @@ export const ocTestInstance = () => {
     KaiLog.log(`target class is: ${class1}`);
     let methods = class1.$methods;
     for (let method of methods) {
-        if (method.includes("view") && !KaiUtils.stringHasPrefixWithCertList(method, BlackMethodPrefixList)) {
+        if (method.includes("combine") || (method.includes("view") && !KaiUtils.stringHasPrefixWithCertList(method, BlackMethodPrefixList))) {
             KaiLog.log(`target method has view is: ${method}`);
         }
     }
@@ -252,6 +252,35 @@ export const ocTestInstance = () => {
             // // newretval = ptr("0x0")
             // returnValue.replace(newRet);
             KaiLog.log(`instance new Return Value: ${returnValue}`);
+        }
+    });
+}
+
+export const ocTestZaVcMethodInstance = () => {
+    let hooking = ObjC.classes['ZaTestListViewController']['- combineSomeParam:number:'] //NSString* int
+    KaiLog.log(`hooking combineSomeParam type ${typeof hooking} is: ${hooking} imp=${hooking.implementation}`);
+    Interceptor.attach(hooking.implementation, {
+        onEnter(args) {
+            KaiLog.log(`instance combineSomeParam method onEnter`);
+            let tmpClassName = new ObjC.Object(args[0]).toString();
+            let tmpMethodName = ObjC.selectorAsString(args[1]);
+            let oriParam0 = new ObjC.Object(args[2]).toString();
+            let oriParam1 = args[3].toInt32();
+
+            args[2] =  ObjC.classes.NSString.stringWithString_("fei");
+            // args[3].writeInt(oriParam1 + 1000); // access violation accessing
+            // args[3] = ptr(oriParam1 + 1000); // access violation accessing
+            args[3] = ptr(`${oriParam1 + 1000}`);
+            KaiLog.log(`instance tmpClassName=${tmpClassName} methodName=${tmpMethodName} param0=${oriParam0} param1=${oriParam1}`);
+        },
+        onLeave(returnValue) {// NSString
+            KaiLog.log(`instance oc method onLeave, returnValue=${returnValue}`);
+            let returnObj = new ObjC.Object(returnValue)
+            let newValue = returnObj + "_modified"
+            let newNSString = ObjC.classes.NSString.stringWithString_(newValue);
+            returnValue.replace(newNSString);
+            // 数字应该是直接： returnValue.replace(1337) 或许也是数字字符串？
+            KaiLog.log(`old returnObj is type: ${returnObj.$className} value=${returnObj}`) // 这里returnObj的值取到的也是被追加modified的
         }
     });
 }

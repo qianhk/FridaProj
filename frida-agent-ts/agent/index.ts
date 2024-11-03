@@ -7,7 +7,8 @@ import {
     ocInvokeFunction,
     ocTestClass,
     ocTestEntry,
-    ocTestInstance
+    ocTestInstance,
+    ocTestZaVcMethodInstance
 } from "./oc_test.js";
 
 console.log('\n\n\n');
@@ -70,6 +71,7 @@ if (macOsProgram) {
     // ocTestClass();
     ocTestInstance();
     ocInvokeFunction();
+    ocTestZaVcMethodInstance();
 }
 
 let testFunPointer = Module.findExportByName(null, "testFun");

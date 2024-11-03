@@ -62,7 +62,8 @@ memory list exports libssl.so
 memory list exports Xxx --json exports.json
 
 object的命令执行结果是无法grep的，可以使用objection run xxx | grep yyy的方式，如（会导致explore中的命令退出，因为看起来重启app了）
-objection -g cn.damai.iphone.KaiDemoDc run memory list modules | grep c++
+objection -g cn.x.iphone.KaiDemo run memory list modules | grep c++
+objection -g cn.x.iphone.KaiDemo run memory list exports KaiDemo
 
 命令是memory dump all from_base，这部分内容与下文脱壳部分有重叠，我们在脱壳部分介绍用法。
 
