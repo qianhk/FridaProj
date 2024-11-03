@@ -96,7 +96,9 @@ const BlackClassPrefixList: string[] = ["_", "UI", "PU", "AK", "PS", "FLEX", "PU
     , "PX", "Web", "PDF", "AX", "WML", "TRV", "FC", "Place", "WK", "PLL", "PX", "OB", "SL", "SL", "DOC", "SwiftUI"
     , "Object", "PK", "MK", "GL"];
 
-const BlackMethodPrefixList: string[] = ["_", "- _", "+ _"]
+const BlackMethodPrefixList: string[] = ["_", "safe","accessibility","setIsAccessibility","wml","wv","lks","flex","CA"
+    ,"bs","px","ax","na","tbsf","sd","setSd","lks","setLks","lookin","CA","pep","cpl","CK","nu","ml","automation"
+    , "setAccessibility", "storedAccessibility", "storedAccessibility", "indexOfAccessibility"]
 
 export const lookOcModuleBaseAddress = () => {
     const moduleName = "KaiDemo";
@@ -119,7 +121,7 @@ export const lookOcModuleBaseAddress = () => {
     for (let className in ObjC.classes) {
         if (ObjC.classes.hasOwnProperty(className)) {
             // KaiLog.log(`enum className hasOwnProperty : ${className})`);
-            if (className.endsWith('ViewController') && !KaiUtils.stringHasPrefixWithCertList(className, BlackClassPrefixList)) {
+            if (className.endsWith('ViewController') && !KaiUtils.classHasCertPrefix(className, BlackClassPrefixList)) {
                 KaiLog.log(`enum className has vc : ${className}`);
             }
         } else {
@@ -203,6 +205,27 @@ export const objcApiResolverTest = () => {
     }
 }
 
+export const lookOcClassMethod = (className: string): void => {
+    let class1 = ObjC.classes[className];
+    KaiLog.log(`target class is: ${class1}`);
+    // let methods = class1.$methods;
+    let methods = class1.$ownMethods;
+    for (let method of methods) {
+        if (!KaiUtils.methodHasCertPrefix(method, BlackMethodPrefixList)) {
+            KaiLog.log(`look ${className} method: ${method}`);
+        }
+    }
+    if (methods.length < 10) {
+        let superClassName = class1.$superClass.$className;
+        let superMethodList = class1.$superClass.$ownMethods;
+        for (let method of superMethodList) {
+            if (!KaiUtils.methodHasCertPrefix(method, BlackMethodPrefixList)) {
+                KaiLog.log(`look ${superClassName} method: ${method}`);
+            }
+        }
+    }
+}
+
 export const ocTestInstance = () => {
     // let _className = "JDxxxInfo";
     // let _methodName = "- setXxx:";
@@ -216,7 +239,7 @@ export const ocTestInstance = () => {
     KaiLog.log(`target class is: ${class1}`);
     let methods = class1.$methods;
     for (let method of methods) {
-        if (method.includes("combine") || (method.includes("view") && !KaiUtils.stringHasPrefixWithCertList(method, BlackMethodPrefixList))) {
+        if (method.includes("combine") || (method.includes("view") && !KaiUtils.methodHasCertPrefix(method, BlackMethodPrefixList))) {
             KaiLog.log(`target method has view is: ${method}`);
         }
     }
@@ -257,7 +280,7 @@ export const ocTestInstance = () => {
 }
 
 export const ocTestZaVcMethodInstance = () => {
-    let hooking = ObjC.classes['ZaTestListViewController']['- combineSomeParam:number:'] //NSString* int
+    let hooking = ObjC.classes['ZaTestListViewController']['- combineSomeParam:number:'] //NSString int => NSString
     KaiLog.log(`hooking combineSomeParam type ${typeof hooking} is: ${hooking} imp=${hooking.implementation}`);
     Interceptor.attach(hooking.implementation, {
         onEnter(args) {
@@ -280,6 +303,51 @@ export const ocTestZaVcMethodInstance = () => {
             let newNSString = ObjC.classes.NSString.stringWithString_(newValue);
             returnValue.replace(newNSString);
             // 数字应该是直接： returnValue.replace(1337) 或许也是数字字符串？
+            KaiLog.log(`old returnObj is type: ${returnObj.$className} value=${returnObj}`) // 这里returnObj的值取到的也是被追加modified的
+        }
+    });
+}
+
+export const ocTestZaVcMethodInstance2 = () => {
+    let hooking = ObjC.classes['ZaTestListViewController']['- combineObject:dic:array:'] //Student NSDictionary NSArray => NSDictionary
+    KaiLog.log(`hooking combineObjectDicArray type ${typeof hooking} is: ${hooking} imp=${hooking.implementation}`);
+    Interceptor.attach(hooking.implementation, {
+        onEnter(args) {
+            KaiLog.log(`instance combineObjectDicArray method onEnter`);
+            let tmpClassName = new ObjC.Object(args[0]).toString();
+            let tmpMethodName = ObjC.selectorAsString(args[1]);
+            let stuObj = new ObjC.Object(args[2]);
+            let dicObj = new ObjC.Object(args[3]);
+            let arrayObj = new ObjC.Object(args[4]);
+            stuObj.setName_("fei");
+            let ivars = stuObj.$ivars;
+            KaiLog.log(`ivars=${JSON.stringify(ivars)}`);
+            let oriAge = stuObj.$ivars['_age'];
+            let oriAge2 = stuObj.age(); // objc的属性调用方法
+            KaiLog.log(`oriAge_${typeof oriAge}=${oriAge} oriAge2=${oriAge2}`)
+            stuObj.setAge_(oriAge+ 100);
+
+            let newMuDic = ObjC.classes.NSMutableDictionary.dictionaryWithDictionary_(dicObj);
+            newMuDic.setObject_forKey_("newFridaValue", "newFridaKey");
+            args[3] = newMuDic; //这样写，之前从args[3]创建的dicObj与这里的值不一样
+            let oriKeyValue = newMuDic.objectForKey_('oriKey');
+            let oriKeyValue2 = newMuDic.objectForKey_('oriKey2');
+
+            let newMuArray = ObjC.classes.NSMutableArray.array();
+            newMuArray.addObjectsFromArray_(arrayObj);
+            newMuArray.addObject_("hello_From_frida");
+            args[4] = newMuArray;
+
+            KaiLog.log(`instance tmpClassName=${tmpClassName} methodName=${tmpMethodName}
+             stuObj=${stuObj.$className}:${stuObj} dicObj=${dicObj.$className}:${dicObj}
+              arrayObj=${arrayObj.$className}:${arrayObj} newMuDic=${newMuDic.$className}:${newMuDic}`);
+            KaiLog.log(`dicValue1=${oriKeyValue.$className}:${oriKeyValue} value2=${oriKeyValue2.$className}:${oriKeyValue2} newMuArray=${newMuArray}`);
+            KaiLog.log(`newArray count=${newMuArray.count()} newMuArray=${newMuArray} second=${newMuArray.objectAtIndex_(1)}`);
+        },
+        onLeave(returnValue) {// NSString
+            KaiLog.log(`instance combineObjectDicArray onLeave, returnValue=${returnValue}`);
+            let returnObj = new ObjC.Object(returnValue)
+            returnObj.setObject_forKey_("directModifyValue", "directKey");
             KaiLog.log(`old returnObj is type: ${returnObj.$className} value=${returnObj}`) // 这里returnObj的值取到的也是被追加modified的
         }
     });

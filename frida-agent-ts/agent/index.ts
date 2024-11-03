@@ -2,13 +2,14 @@ import {KaiLog} from "../utils/kai_log.js";
 import path from "path";
 import {KaiUtils} from "../utils/kai_utils.js";
 import {
+    lookOcClassMethod,
     lookOcModuleBaseAddress,
     objcApiResolverTest,
     ocInvokeFunction,
     ocTestClass,
     ocTestEntry,
     ocTestInstance,
-    ocTestZaVcMethodInstance
+    ocTestZaVcMethodInstance, ocTestZaVcMethodInstance2
 } from "./oc_test.js";
 
 console.log('\n\n\n');
@@ -71,7 +72,9 @@ if (macOsProgram) {
     // ocTestClass();
     ocTestInstance();
     ocInvokeFunction();
+    lookOcClassMethod('KaiStudent')
     ocTestZaVcMethodInstance();
+    ocTestZaVcMethodInstance2();
 }
 
 let testFunPointer = Module.findExportByName(null, "testFun");
