@@ -46,6 +46,10 @@ Memory.readU32(args[0].add(4));
 var moduleName = "comic-universal";
 console.log("\n" + "base : " + Module.findBaseAddress(moduleName));
 
+var file = new File("/var/mobile/log.txt","a+");//a+表示追加内容，和c语言的fopen函数模式类似
+file.write("logInfo");
+file.flush();
+file.close();
 
  */
 
