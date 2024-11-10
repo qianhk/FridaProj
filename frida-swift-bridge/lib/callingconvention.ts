@@ -12,24 +12,24 @@ import {
     RuntimeInstance,
     StructValue,
     ValueInstance,
-} from "./types";
+} from "./types.js";
 import {
     TargetEnumMetadata,
     TargetMetadata,
     TargetStructMetadata,
     TargetValueMetadata,
-} from "../abi/metadata";
+} from "../abi/metadata.js";
 import {
     ClassExistentialContainer,
     TargetOpaqueExistentialContainer,
-} from "../runtime/existentialcontainer";
-import { getProtocolConformancesFor } from "./macho";
-import { MetadataKind } from "../abi/metadatavalues";
+} from "../runtime/existentialcontainer.js";
+import { getProtocolConformancesFor } from "./macho.js";
+import { MetadataKind } from "../abi/metadatavalues.js";
 import {
     makeBufferFromValue,
     makeValueFromBuffer,
     moveValueToBuffer,
-} from "./buffer";
+} from "./buffer.js";
 
 export type NativeSwiftType = TargetMetadata | ProtocolComposition | NativeFunctionReturnType | NativeFunctionArgumentType;
 export const MAX_LOADABLE_SIZE = Process.pointerSize * 4;

@@ -4,8 +4,8 @@ import {
     TargetMetadata,
     TargetValueBuffer,
     TargetValueMetadata,
-} from "../abi/metadata";
-import { HeapObject } from "./heapobject";
+} from "../abi/metadata.js";
+import { HeapObject } from "./heapobject.js";
 
 export class TargetOpaqueExistentialContainer {
     static readonly INITIAL_SIZE = 4 * Process.pointerSize;

@@ -1,11 +1,16 @@
 {
     "compilerOptions": {
-        "lib": ["es2020"],
         "target": "es2020",
-        "module": "commonjs",
-        "declaration": true,
-        "outDir": "./dist"
-    },
-    "include": ["./*.ts", "lib/*.ts", "abi/*.ts"],
-    "exclude": ["node_modules", "dist"]
+        "module": "nodenext",
+        "lib": ["es2020"],
+        "source-map": true,
+        "removeComments": true,
+        "allowJs": true,
+//        "noEmit": true,
+//        "strict": true,
+//        "noImplicitAny": true,
+//        "strictNullChecks": true,
+//        "allowSyntheticDefaultImports": true,
+//        "esModuleInterop": true
+    }
 }

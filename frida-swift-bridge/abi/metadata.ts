@@ -15,13 +15,13 @@ import {
     ConformanceFlags,
     getEnumeratedMetadataKind,
     ProtocolContextDescriptorFlags,
-} from "./metadatavalues";
+} from "./metadatavalues.js";
 import {
     RelativeDirectPointer,
     RelativeIndirectablePointer,
-} from "../basic/relativepointer";
-import { BoxPair } from "../runtime/heapobject";
-import { getApi } from "../lib/api";
+} from "../basic/relativepointer.js";
+import { BoxPair } from "../runtime/heapobject.js";
+import { getApi } from "../lib/api.js";
 
 export type OpaqueValue = NativePointer;
 
@@ -142,7 +142,7 @@ export abstract class TargetMetadata {
 export class TargetValueMetadata extends TargetMetadata {
     static readonly OFFSETOF_DESCRIPTION = Process.pointerSize;
 
-    #description: NativePointer;
+    #description?: NativePointer;
 
     get description(): NativePointer {
         if (this.#description === undefined) {
@@ -162,7 +162,7 @@ export class TargetValueMetadata extends TargetMetadata {
 export class TargetClassMetadata extends TargetMetadata {
     static readonly OFFSTETOF_DESCRIPTION = Process.pointerSize * 8;
 
-    #description: NativePointer;
+    #description?: NativePointer;
 
     get description(): NativePointer {
         if (this.#description === undefined) {
@@ -310,8 +310,8 @@ export class TargetContextDescriptor {
     static readonly OFFSETOF_FLAGS = 0x0;
     static readonly OFFSETOF_PARENT = 0x4;
 
-    #flags: ContextDescriptorFlags;
-    #parent: RelativeIndirectablePointer;
+    #flags?: ContextDescriptorFlags;
+    #parent?: RelativeIndirectablePointer;
 
     constructor(readonly handle: NativePointer) {}
 
@@ -359,10 +359,10 @@ export class TargetContextDescriptor {
 export class TargetModuleContextDescriptor extends TargetContextDescriptor {
     private static OFFSETOF_NAME = 0x8;
 
-    #name: string;
+    #name?: string | null;
 
     get name(): string {
-        if (this.#name !== undefined) {
+        if (this.#name != null) {
             return this.#name;
         }
 
@@ -372,7 +372,7 @@ export class TargetModuleContextDescriptor extends TargetContextDescriptor {
         const absPtr = RelativeDirectPointer.From(relPtr).get();
 
         this.#name = absPtr.readCString();
-        return this.#name;
+        return this.#name ?? '';
     }
 }
 
@@ -381,9 +381,9 @@ export class TargetTypeContextDescriptor extends TargetContextDescriptor {
     static readonly OFFSETOF_ACCESS_FUNCTION_PTR = 0xc;
     static readonly OFFSETOF_FIELDS = 0x10;
 
-    #name: string | undefined;
-    #accessFunctionPtr: NativePointer;
-    #fields: RelativeDirectPointer;
+    #name?: string | null;
+    #accessFunctionPtr?: NativePointer;
+    #fields?: RelativeDirectPointer;
 
     getTypeContextDescriptorFlags(): TypeContextDescriptorFlags {
         return new TypeContextDescriptorFlags(
@@ -392,7 +392,7 @@ export class TargetTypeContextDescriptor extends TargetContextDescriptor {
     }
 
     get name(): string {
-        if (this.#name !== undefined) {
+        if (this.#name != null) {
             return this.#name;
         }
 
@@ -400,7 +400,7 @@ export class TargetTypeContextDescriptor extends TargetContextDescriptor {
             this.handle.add(TargetTypeContextDescriptor.OFFSETOF_NAME)
         ).get();
         this.#name = namePtr.readUtf8String();
-        return this.#name;
+        return this.#name ?? '';
     }
 
     get accessFunctionPointer(): NativePointer {
@@ -467,7 +467,8 @@ export class TargetClassDescriptor extends TargetTypeContextDescriptor {
 
     getVTableDescriptor(): VTableDescriptorHeader {
         if (!this.hasVTable()) {
-            return null;
+            // return null;
+            throw Error('no vt table');
         }
 
         const pointer = this.handle.add(
@@ -539,13 +540,13 @@ class TargetMethodDescriptor {
     static readonly OFFSETOF_IMPL = 0x4;
     static sizeof = 8;
 
-    #flags: MethodDescriptorFlags;
-    #impl: RelativeDirectPointer;
+    #flags?: MethodDescriptorFlags;
+    #impl?: RelativeDirectPointer;
 
     constructor(private handle: NativePointer) {}
 
     get flags(): MethodDescriptorFlags {
-        if (this.#flags !== undefined) {
+        if (this.#flags != null) {
             return this.#flags;
         }
 
@@ -556,7 +557,7 @@ class TargetMethodDescriptor {
     }
 
     get impl(): RelativeDirectPointer {
-        if (this.#impl !== undefined) {
+        if (this.#impl != null) {
             return this.#impl;
         }
 
@@ -569,15 +570,15 @@ export class TargetStructDescriptor extends TargetTypeContextDescriptor {
     static readonly OFFSETOF_NUM_FIELDS = 0x18;
     static readonly OFFSETOF_FIELD_OFFSET_VECTOR_OFFSET = 0x1c;
 
-    #numFields: number | undefined;
-    #fieldOffsetVectorOffset: number | undefined;
+    #numFields?: number;
+    #fieldOffsetVectorOffset?: number;
 
     hasFieldOffsetVector(): boolean {
         return this.fieldOffsetVectorOffset !== 0;
     }
 
     get numFields(): number {
-        if (this.#numFields !== undefined) {
+        if (this.#numFields != null) {
             return this.#numFields;
         }
 
@@ -587,7 +588,7 @@ export class TargetStructDescriptor extends TargetTypeContextDescriptor {
     }
 
     get fieldOffsetVectorOffset(): number {
-        if (this.#fieldOffsetVectorOffset !== undefined) {
+        if (this.#fieldOffsetVectorOffset != null) {
             return this.#fieldOffsetVectorOffset;
         }
 
@@ -601,11 +602,11 @@ export class TargetEnumDescriptor extends TargetTypeContextDescriptor {
     static readonly OFFSETOF_NUM_PAYLOAD_CASES_AND_PAYLOAD_SIZE_OFFSET = 0x14;
     static readonly OFFSETOF_NUM_EMPTY_CASES = 0x18;
 
-    #numPayloadCasesAndPayloadSizeOffset: number;
-    #numEmptyCases: number;
+    #numPayloadCasesAndPayloadSizeOffset?: number;
+    #numEmptyCases?: number;
 
     get numPayloadCasesAndPayloaadSizeOffset(): number {
-        if (this.#numPayloadCasesAndPayloadSizeOffset === undefined) {
+        if (this.#numPayloadCasesAndPayloadSizeOffset == null) {
             const num = this.handle
                 .add(
                     TargetEnumDescriptor.OFFSETOF_NUM_PAYLOAD_CASES_AND_PAYLOAD_SIZE_OFFSET
@@ -618,7 +619,7 @@ export class TargetEnumDescriptor extends TargetTypeContextDescriptor {
     }
 
     get numEmptyCases(): number {
-        if (this.#numEmptyCases === undefined) {
+        if (this.#numEmptyCases == null) {
             this.#numEmptyCases = this.handle
                 .add(TargetEnumDescriptor.OFFSETOF_NUM_EMPTY_CASES)
                 .readU32();
@@ -649,33 +650,33 @@ export class TargetProtocolDescriptor extends TargetContextDescriptor {
     static readonly OFFSETOF_NAME = 0x8;
     static readonly OFFSETOF_NUM_REQUIREMENTS = 0x10;
 
-    #name: string;
-    #numRequirements: number;
+    #name?: string | null;
+    #numRequirements?: number;
 
     constructor(handle: NativePointer) {
         super(handle);
     }
 
     get name(): string {
-        if (this.#name === undefined) {
+        if (this.#name == null) {
             const pointer = RelativeDirectPointer.From(
                 this.handle.add(TargetProtocolDescriptor.OFFSETOF_NAME)
             ).get();
             this.#name = pointer.readCString();
         }
 
-        return this.#name;
+        return this.#name ?? '';
     }
 
     get numRequirements(): number {
-        if (this.#numRequirements === undefined) {
+        if (this.#numRequirements == null) {
             const pointer = this.handle.add(
                 TargetProtocolDescriptor.OFFSETOF_NUM_REQUIREMENTS
             );
             this.#numRequirements = pointer.readU32();
         }
 
-        return this.#numRequirements;
+        return this.#numRequirements ?? 0;
     }
 
     getProtocolContextDescriptorFlags(): ProtocolContextDescriptorFlags {
@@ -693,7 +694,7 @@ class TargetTypeReference {
     constructor(private readonly handle: NativePointer) {}
 
     getTypeDescriptor(kind: TypeReferenceKind): NativePointer {
-        let pointer: NativePointer = null;
+        let pointer: NativePointer | null = null;
 
         switch (kind) {
             case TypeReferenceKind.DirectTypeDescriptor:
@@ -709,7 +710,7 @@ class TargetTypeReference {
                 break;
         }
 
-        return pointer;
+        return pointer!;
     }
 }
 
@@ -720,15 +721,15 @@ export class TargetProtocolConformanceDescriptor {
     static readonly OFFSETOF_FLAGS = 0xc;
     static readonly OFFSETOF_WITNESS_TABLE_PATTERN = 0x10;
 
-    #protocol: NativePointer;
-    #typeRef: TargetTypeReference;
-    #witnessTablePattern: NativePointer;
-    #flags: ConformanceFlags;
+    #protocol?: NativePointer;
+    #typeRef?: TargetTypeReference;
+    #witnessTablePattern?: NativePointer | null;
+    #flags?: ConformanceFlags;
 
     constructor(readonly handle: NativePointer) {}
 
     get protocol(): NativePointer {
-        if (this.#protocol === undefined) {
+        if (this.#protocol == null) {
             this.#protocol = RelativeIndirectablePointer.From(
                 this.handle.add(
                     TargetProtocolConformanceDescriptor.OFFSETOF_PROTOTCOL
@@ -736,23 +737,23 @@ export class TargetProtocolConformanceDescriptor {
             ).get();
         }
 
-        return this.#protocol;
+        return this.#protocol!;
     }
 
     get typeRef(): TargetTypeReference {
-        if (this.#typeRef === undefined) {
+        if (this.#typeRef == null) {
             const pointer = this.handle.add(
                 TargetProtocolConformanceDescriptor.OFFSETOF_TYPE_REF
             );
             this.#typeRef = new TargetTypeReference(pointer);
         }
 
-        return this.#typeRef;
+        return this.#typeRef!;
     }
 
     /* This is actually the protocol witness table */
     get witnessTablePattern(): NativePointer {
-        if (this.#witnessTablePattern === undefined) {
+        if (this.#witnessTablePattern == null) {
             const witnessTable = RelativeDirectPointer.From(
                 this.handle.add(
                     TargetProtocolConformanceDescriptor.OFFSTEOF_WITNESS_TABLE_PATTERN
@@ -763,18 +764,18 @@ export class TargetProtocolConformanceDescriptor {
                 : null;
         }
 
-        return this.#witnessTablePattern;
+        return this.#witnessTablePattern!;
     }
 
     get flags(): ConformanceFlags {
-        if (this.#flags === undefined) {
+        if (this.#flags == null) {
             const pointer = this.handle.add(
                 TargetProtocolConformanceDescriptor.OFFSETOF_FLAGS
             );
             this.#flags = new ConformanceFlags(pointer.readU32());
         }
 
-        return this.#flags;
+        return this.#flags!;
     }
 
     getTypeKind(): TypeReferenceKind {
