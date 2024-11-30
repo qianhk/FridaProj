@@ -5,8 +5,8 @@ export interface Api {
 
 const CSTypeRef: NativeFunctionReturnType = ["pointer", "pointer"];
 
-let cachedApi: Api = null;
-let cachedPrivateAPI: Api = null;
+let cachedApi: Api | null = null;
+let cachedPrivateAPI: Api | null = null;
 
 export function getApi(): Api {
     if (Process.arch !== "arm64" || Process.platform  !== "darwin") {

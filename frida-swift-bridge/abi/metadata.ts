@@ -327,13 +327,13 @@ export class TargetContextDescriptor {
     }
 
     get parent(): RelativeIndirectablePointer {
-        if (this.#parent !== undefined) {
+        if (this.#parent != null) {
             return this.#parent;
         }
 
         this.#parent = RelativeIndirectablePointer.From(
             this.handle.add(TargetContextDescriptor.OFFSETOF_PARENT)
-        );
+        )!;
         return this.#parent;
     }
 
@@ -369,7 +369,7 @@ export class TargetModuleContextDescriptor extends TargetContextDescriptor {
         const relPtr = this.handle.add(
             TargetModuleContextDescriptor.OFFSETOF_NAME
         );
-        const absPtr = RelativeDirectPointer.From(relPtr).get();
+        const absPtr = RelativeDirectPointer.From(relPtr)!.get();
 
         this.#name = absPtr.readCString();
         return this.#name ?? '';
@@ -398,7 +398,7 @@ export class TargetTypeContextDescriptor extends TargetContextDescriptor {
 
         const namePtr = RelativeDirectPointer.From(
             this.handle.add(TargetTypeContextDescriptor.OFFSETOF_NAME)
-        ).get();
+        )!.get();
         this.#name = namePtr.readUtf8String();
         return this.#name ?? '';
     }
@@ -412,7 +412,7 @@ export class TargetTypeContextDescriptor extends TargetContextDescriptor {
             this.handle.add(
                 TargetTypeContextDescriptor.OFFSETOF_ACCESS_FUNCTION_PTR
             )
-        ).get();
+        )!.get();
     }
 
     get fields(): RelativeDirectPointer {
@@ -422,7 +422,7 @@ export class TargetTypeContextDescriptor extends TargetContextDescriptor {
 
         return RelativeDirectPointer.From(
             this.handle.add(TargetTypeContextDescriptor.OFFSETOF_FIELDS)
-        );
+        )!;
     }
 
     isReflectable(): boolean {
@@ -562,7 +562,7 @@ class TargetMethodDescriptor {
         }
 
         const pointer = this.handle.add(TargetMethodDescriptor.OFFSETOF_IMPL);
-        return RelativeDirectPointer.From(pointer);
+        return RelativeDirectPointer.From(pointer)!;
     }
 }
 
@@ -661,7 +661,7 @@ export class TargetProtocolDescriptor extends TargetContextDescriptor {
         if (this.#name == null) {
             const pointer = RelativeDirectPointer.From(
                 this.handle.add(TargetProtocolDescriptor.OFFSETOF_NAME)
-            ).get();
+            )!.get();
             this.#name = pointer.readCString();
         }
 
@@ -698,10 +698,10 @@ class TargetTypeReference {
 
         switch (kind) {
             case TypeReferenceKind.DirectTypeDescriptor:
-                pointer = RelativeDirectPointer.From(this.handle).get();
+                pointer = RelativeDirectPointer.From(this.handle)!.get();
                 break;
             case TypeReferenceKind.IndirectTypeDescriptor:
-                pointer = RelativeDirectPointer.From(this.handle).get();
+                pointer = RelativeDirectPointer.From(this.handle)!.get();
                 pointer = pointer.readPointer();
                 break;
             /* TODO: what to do with those? */
@@ -734,7 +734,7 @@ export class TargetProtocolConformanceDescriptor {
                 this.handle.add(
                     TargetProtocolConformanceDescriptor.OFFSETOF_PROTOTCOL
                 )
-            ).get();
+            )!.get();
         }
 
         return this.#protocol!;

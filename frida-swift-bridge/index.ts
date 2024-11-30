@@ -32,8 +32,8 @@ import { getSymbolicator } from "./lib/symbols.js";
 type ConvenientSwiftType = Type | Protocol | ProtocolComposition | NativeFunctionReturnType | NativeFunctionArgumentType;
 
 class Runtime {
-    #api: Api = null;
-    #initializatioError: Error = null;
+    #api: Api | null = null;
+    #initializatioError: any | null = null;
 
     constructor() {
         try {
@@ -52,7 +52,7 @@ class Runtime {
     }
 
     get api(): Api {
-        return this.#api;
+        return this.#api!;
     }
 
     get modules(): Record<string, SwiftModule> {

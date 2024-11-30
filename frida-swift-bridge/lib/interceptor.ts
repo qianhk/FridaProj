@@ -5,7 +5,7 @@ import {
     TargetValueMetadata,
 } from "../abi/metadata.js";
 import { MetadataKind } from "../abi/metadatavalues.js";
-import { makeBufferFromValue, RawFields, sizeInQWordsRounded } from "./buffer.js";
+import { makeBufferFromValue, PointerSized, RawFields, sizeInQWordsRounded } from "./buffer.js";
 import {
     INDRIECT_RETURN_REGISTER,
     MAX_LOADABLE_SIZE,
@@ -55,7 +55,7 @@ export namespace SwiftInterceptor {
             this: InvocationContext,
             args: InvocationArguments
         ) {
-            indirectRetAddr = this.context[INDRIECT_RETURN_REGISTER];
+            indirectRetAddr = this.context[INDRIECT_RETURN_REGISTER] as NativePointer;
 
             if (callbacks.onEnter !== undefined) {
                 const swiftyArgs: RuntimeInstance[] = [];
@@ -119,7 +119,7 @@ export namespace SwiftInterceptor {
         };
 
         let onLeave: InvocationOnLeaveCallback;
-        if (callbacks.onLeave !== undefined) {
+        if (callbacks.onLeave != null) {
             onLeave = function (
                 this: InvocationContext,
                 retval: InvocationReturnValue
@@ -137,7 +137,7 @@ export namespace SwiftInterceptor {
                         const sizeQWords = sizeInQWordsRounded(size);
                         const raw: RawFields = [];
                         for (let i = 0; i != sizeQWords; i++) {
-                            raw.push(this.context[`x${i}`]);
+                            raw.push(this.context[`x${i}`] as PointerSized);
                         }
                         buf = makeBufferFromValue(raw);
                     } else {
@@ -165,7 +165,7 @@ export namespace SwiftInterceptor {
                             const raw: RawFields = [];
 
                             for (let i = 0; i < sizeQWords; i++) {
-                                raw.push(this.context[`x${i}`]);
+                                raw.push(this.context[`x${i}`] as PointerSized);
                             }
 
                             swiftyRetval = ValueInstance.fromRaw(
@@ -181,8 +181,8 @@ export namespace SwiftInterceptor {
                     }
                 }
 
-                const swiftyOnLeave = callbacks.onLeave.bind(this);
-                swiftyOnLeave(swiftyRetval);
+                const swiftyOnLeave = callbacks.onLeave!.bind(this);
+                if (swiftyOnLeave != null) swiftyOnLeave(swiftyRetval);
             };
         }
 

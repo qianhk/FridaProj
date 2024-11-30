@@ -267,9 +267,9 @@ class StrongQueue<T> {
     }
 
     dequeue(): T {
-        if (Object.keys(this.#queue).length === 0) {
-            return undefined;
-        }
+        // if (Object.keys(this.#queue).length === 0) {
+        //     return null; // KAIDO tmp comment
+        // }
 
         const item = this.#queue[this.#next++];
 
@@ -354,20 +354,20 @@ export class SwiftcallNativeFunction {
                 writer.putLdrRegAddress("x21", errorResult);
             }
 
-            if (indirectResult !== undefined) {
+            if (indirectResult != null) {
                 writer.putLdrRegAddress("x8", indirectResult);
             }
 
             writer.putLdrRegAddress("x14", target);
             writer.putBlrRegNoAuth("x14");
 
-            if (indirectResult === undefined && this.#returnBufferSize > 0) {
-                writer.putLdrRegAddress("x15", this.#returnBuffer);
+            if (indirectResult == null && (this.#returnBufferSize ?? 0) > 0) {
+                writer.putLdrRegAddress("x15", this.#returnBuffer!);
 
                 let i = 0,
                     offset = 0;
 
-                for (; offset < this.#returnBufferSize; i++, offset += 8) {
+                for (; offset < this.#returnBufferSize!; i++, offset += 8) {
                     const reg = `x${i}` as Arm64Register;
                     writer.putStrRegRegOffset(reg, "x15", offset);
                 }
@@ -413,13 +413,13 @@ export class SwiftcallNativeFunction {
         const result: NativeFunctionReturnValue[] = [];
 
         if (!Array.isArray(this.#resultType)) {
-            return this.#returnBuffer.readValue(this.#resultType);
+            return this.#returnBuffer!.readValue(this.#resultType);
         }
 
         /* TODO: handle signed values */
-        for (let i = 0, j = 0; i < this.#returnBufferSize; i += 8, j++) {
+        for (let i = 0, j = 0; i < (this.#returnBufferSize ?? 0); i += 8, j++) {
             const type = this.#resultType[j];
-            result.push(this.#returnBuffer.add(i).readValue(type));
+            result.push(this.#returnBuffer!.add(i).readValue(type));
         }
 
         return result;
@@ -442,8 +442,8 @@ NativePointer.prototype.readValue = function (
     switch (type) {
         case "pointer":
             return this.readPointer();
-        case "string":
-            return this.readCString();
+        // case "string":
+        //     return this.readCString(); //  Type 'string' is not assignable to type 'NativeFunctionReturnValue'
         case "int":
             return this.readInt();
         case "uint":
