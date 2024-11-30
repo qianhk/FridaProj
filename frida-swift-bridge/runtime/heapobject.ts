@@ -6,8 +6,8 @@ type HeapMetadata = TargetMetadata;
 export class HeapObject {
     static readonly SIZEOF = Process.pointerSize * 2;
 
-    readonly metadata: HeapMetadata;
-    readonly refCounts: number;
+    // readonly metadata: HeapMetadata;
+    // readonly refCounts: number;
 
     constructor(readonly handle: NativePointer) {}
 

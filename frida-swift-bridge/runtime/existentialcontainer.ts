@@ -15,12 +15,12 @@ export class TargetOpaqueExistentialContainer {
         wintessTable: Process.pointerSize * 4,
     };
 
-    #buffer: TargetValueBuffer;
-    #type: TargetMetadata;
+    #buffer: TargetValueBuffer | null = null;
+    #type: TargetMetadata | null = null;
 
     private constructor(
         readonly handle: NativePointer,
-        private numWitnessTables
+        private numWitnessTables : any
     ) {}
 
     static alloc(numWitnessTables: number): TargetOpaqueExistentialContainer {
@@ -59,7 +59,7 @@ export class TargetOpaqueExistentialContainer {
     }
 
     get buffer(): TargetValueBuffer {
-        if (this.#buffer === undefined) {
+        if (this.#buffer == null) {
             this.#buffer = new TargetValueBuffer(this.handle);
         }
 
@@ -68,7 +68,7 @@ export class TargetOpaqueExistentialContainer {
 
     // eslint-disable-next-line @typescript-eslint/adjacent-overload-signatures
     get type(): TargetMetadata {
-        return this.#type;
+        return this.#type!;
     }
 
     getWitnessTables(): NativePointer {
@@ -110,7 +110,7 @@ export class ClassExistentialContainer {
         witnessTables: Process.pointerSize,
     };
 
-    #value: NativePointer;
+    #value: NativePointer | null = null;
 
     constructor(
         readonly handle: NativePointer,
@@ -141,7 +141,7 @@ export class ClassExistentialContainer {
     }
 
     get value(): NativePointer {
-        return this.#value;
+        return this.#value!;
     }
 
     set value(newValue: NativePointer) {

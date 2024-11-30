@@ -67,7 +67,7 @@ class FieldRecord {
         this.#mangledTypeName = RelativeDirectPointer.From(
             this.handle.add(FieldRecord.OFFSETOF_MANGLED_TYPE_NAME)
         );
-        return this.#mangledTypeName;
+        return this.#mangledTypeName!;
     }
 
     get fieldName(): string {
@@ -77,10 +77,10 @@ class FieldRecord {
 
         this.#fieldName = RelativeDirectPointer.From(
             this.handle.add(FieldRecord.OFFSETOF_FIELD_NAME)
-        )
+        )!
             .get()
             .readUtf8String();
-        return this.#fieldName;
+        return this.#fieldName!;
     }
 
     get isIndirectCase(): boolean {
