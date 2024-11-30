@@ -26,14 +26,14 @@ export function demangledSymbolFromAddress(address: NativePointer): string {
     );
 
     if (api.CSIsNull(symbol)) {
-        return undefined;
+        return ""; //return undefined;
     }
 
     const namePtr = api.CSSymbolGetMangledName(symbol) as NativePointer;
     const mangled = namePtr.readCString();
 
     if (mangled === null) {
-        return undefined;
+        return ""; //return undefined;
     }
 
     return tryDemangleSymbol(mangled);
@@ -41,7 +41,7 @@ export function demangledSymbolFromAddress(address: NativePointer): string {
 
 export function tryDemangleSymbol(name: string): string {
     if (!isSwiftSymbol(name)) {
-        return undefined;
+        return ""; //return undefined;
     }
 
     const cached = demangleCache.get(name);
@@ -62,11 +62,11 @@ export function tryDemangleSymbol(name: string): string {
         ) as NativePointer;
 
         const demangled = demangledNamePtr.readUtf8String();
-        demangleCache.set(name, demangled);
+        demangleCache.set(name, demangled ?? "");
 
-        return demangled;
+        return demangled ?? "";
     } catch (e) {
-        return undefined;
+        return ""; //return undefined;
     }
 }
 
@@ -161,11 +161,11 @@ export function parseSwiftMethodSignature(
 
 export function tryParseSwiftMethodSignature(
     signature: string
-): MethodSignatureParseResult {
+): MethodSignatureParseResult | null {
     try {
         return parseSwiftMethodSignature(signature);
     } catch (e) {
-        return undefined;
+        return null;
     }
 }
 
@@ -203,11 +203,11 @@ export function parseSwiftAccessorSignature(
 
 export function tryParseSwiftAccessorSignature(
     signature: string
-): AccessorSignatureParseResult {
+): AccessorSignatureParseResult | null {
     try {
         return parseSwiftAccessorSignature(signature);
     } catch (e) {
-        return undefined;
+        return null;
     }
 }
 

@@ -4,7 +4,7 @@ export class FieldDescriptor {
     static readonly SIZE = 16;
     static readonly OFFSETOF_NUMFIELDS = 0x0c;
 
-    #numFields: number;
+    #numFields: number | null = null;
 
     constructor(private handle: NativePointer) {}
 
@@ -13,7 +13,7 @@ export class FieldDescriptor {
     }
 
     get numFields(): number {
-        if (this.#numFields !== undefined) {
+        if (this.#numFields != null) {
             return this.#numFields;
         }
 
@@ -44,14 +44,14 @@ class FieldRecord {
     static readonly OFFSETOF_MANGLED_TYPE_NAME = 0x4;
     static readonly OFFSETOF_FIELD_NAME = 0x8;
 
-    #flags: number;
-    #mangledTypeName: RelativeDirectPointer;
-    #fieldName: string;
+    #flags: number | null = null;
+    #mangledTypeName: RelativeDirectPointer | null = null;
+    #fieldName: string | null = null;
 
     constructor(private handle: NativePointer) {}
 
     get flags(): number {
-        if (this.#flags !== undefined) {
+        if (this.#flags != null) {
             return this.#flags;
         }
 
@@ -60,7 +60,7 @@ class FieldRecord {
     }
 
     get mangledTypeName(): RelativeDirectPointer {
-        if (this.#mangledTypeName !== undefined) {
+        if (this.#mangledTypeName != null) {
             return this.#mangledTypeName;
         }
 
@@ -71,7 +71,7 @@ class FieldRecord {
     }
 
     get fieldName(): string {
-        if (this.#fieldName !== undefined) {
+        if (this.#fieldName != null) {
             return this.#fieldName;
         }
 

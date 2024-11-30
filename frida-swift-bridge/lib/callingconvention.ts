@@ -151,7 +151,7 @@ export function makeSwiftNativeFunction(
                 }
                 const vwt = conformance.witnessTable;
 
-                base.add(i * Process.pointerSize).writePointer(vwt);
+                base.add(i * Process.pointerSize).writePointer(vwt!);
             }
 
             actualArgs.push(lowerPhysically(container));

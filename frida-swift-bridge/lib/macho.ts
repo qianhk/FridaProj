@@ -27,7 +27,7 @@ export interface ProtocolConformance {
      * undefined on some systems. This field will be null in that case to reflect that fact.
      */
     protocol: TargetProtocolDescriptor | null;
-    witnessTable: NativePointer;
+    witnessTable: NativePointer | null;
 }
 
 export interface ProtocolConformanceMap {
@@ -85,8 +85,8 @@ export function untypedMetadataFor(typeName: string): TargetMetadata {
         throw new Error("Type not found: " + typeName);
     }
 
-    if (fullTypeData.metadata !== undefined) {
-        return fullTypeDataMap[typeName].metadata;
+    if (fullTypeData.metadata != null) {
+        return fullTypeDataMap[typeName].metadata!;
     }
 
     const metadataPtr = fullTypeData.descriptor
@@ -160,7 +160,7 @@ function enumerateTypeDescriptors(
 
     for (let i = 0; i < nTypes; i++) {
         const record = section.vmAddress.add(i * RelativeDirectPointer.sizeOf);
-        const ctxDescPtr = RelativeDirectPointer.From(record).get();
+        const ctxDescPtr = RelativeDirectPointer.From(record)!.get();
         const ctxDesc = new TargetTypeContextDescriptor(ctxDescPtr);
 
         if (ctxDesc.isGeneric()) {
@@ -199,7 +199,7 @@ function enumerateProtocolDescriptors(
 
     for (let i = 0; i < numProtos; i++) {
         const record = section.vmAddress.add(i * RelativeDirectPointer.sizeOf);
-        const ctxDescPtr = RelativeDirectPointer.From(record).get();
+        const ctxDescPtr = RelativeDirectPointer.From(record)!.get();
         const ctxDesc = new TargetProtocolDescriptor(ctxDescPtr);
 
         result.push(ctxDesc);
@@ -216,7 +216,7 @@ function bindProtocolConformances(module: Module) {
         const recordPtr = section.vmAddress.add(
             i * RelativeDirectPointer.sizeOf
         );
-        const descPtr = RelativeDirectPointer.From(recordPtr).get();
+        const descPtr = RelativeDirectPointer.From(recordPtr)!.get();
         const conformanceDesc = new TargetProtocolConformanceDescriptor(
             descPtr
         );
@@ -303,7 +303,7 @@ function getMachoSection(
 export function findDemangledSymbol(address: NativePointer): string {
     const module = allModules.find(address);
     if (module === null) {
-        return undefined;
+        return ""; // return undefined;
     }
 
     const rawAddr = address.toString();
@@ -313,8 +313,8 @@ export function findDemangledSymbol(address: NativePointer): string {
     }
 
     const demangled = demangledSymbolFromAddress(address);
-    if (demangled === undefined) {
-        return undefined;
+    if (demangled == null) {
+        return ""; // return undefined;
     }
 
     demangledSymbols.set(rawAddr, demangled);

@@ -55,7 +55,7 @@ export namespace SwiftInterceptor {
             this: InvocationContext,
             args: InvocationArguments
         ) {
-            indirectRetAddr = this.context[INDRIECT_RETURN_REGISTER] as NativePointer;
+            indirectRetAddr = (this.context as Arm64CpuContext)[INDRIECT_RETURN_REGISTER];
 
             if (callbacks.onEnter !== undefined) {
                 const swiftyArgs: RuntimeInstance[] = [];
@@ -137,7 +137,7 @@ export namespace SwiftInterceptor {
                         const sizeQWords = sizeInQWordsRounded(size);
                         const raw: RawFields = [];
                         for (let i = 0; i != sizeQWords; i++) {
-                            raw.push(this.context[`x${i}`] as PointerSized);
+                            raw.push((this.context as Arm64CpuContext)[`x${i}`]);
                         }
                         buf = makeBufferFromValue(raw);
                     } else {
@@ -165,7 +165,7 @@ export namespace SwiftInterceptor {
                             const raw: RawFields = [];
 
                             for (let i = 0; i < sizeQWords; i++) {
-                                raw.push(this.context[`x${i}`] as PointerSized);
+                                raw.push(((this.context as Arm64CpuContext)[`x${i}`]) as PointerSized);
                             }
 
                             swiftyRetval = ValueInstance.fromRaw(

@@ -88,7 +88,7 @@ export class Class extends Type {
         for (const method of this.$methods) {
             if (method.type === "Init") {
                 const parsed = tryParseSwiftMethodSignature(method.name);
-                if (parsed === undefined) {
+                if (parsed == null) {
                     continue;
                 }
 
@@ -334,7 +334,7 @@ export abstract class RuntimeInstance {
 }
 
 export abstract class ValueInstance extends RuntimeInstance {
-    readonly $metadata: TargetValueMetadata;
+    // readonly $metadata: TargetValueMetadata; // KAIDO
 
     static fromCopy(
         src: NativePointer,
@@ -401,12 +401,12 @@ export class StructValue implements ValueInstance {
         type: Struct | TargetStructMetadata,
         options: StructValueConstructionOptions
     ) {
-        if (options.handle === undefined && options.raw === undefined) {
+        if (options.handle == null && options.raw == null) {
             throw new Error("Either a handle or raw fields must be provided");
         }
 
         this.$metadata = type instanceof Struct ? type.$metadata : type;
-        this.handle = options.handle || makeBufferFromValue(options.raw);
+        this.handle = options.handle || makeBufferFromValue(options.raw!);
     }
 
     equals(other: StructValue): boolean {
@@ -433,7 +433,7 @@ export class EnumValue implements ValueInstance {
     readonly descriptor: TargetEnumDescriptor;
 
     #tag: number;
-    #payload: RuntimeInstance;
+    #payload: RuntimeInstance | null = null;
 
     constructor(
         type: Enum | TargetEnumMetadata,
@@ -498,16 +498,16 @@ export class EnumValue implements ValueInstance {
             this.$metadata.vw_destructiveInjectEnumTag(this.handle, tag);
             this.#tag = tag;
         } else {
-            this.handle = options.handle || makeBufferFromValue(options.raw);
+            this.handle = options.handle || makeBufferFromValue(options.raw!);
             const tag = this.$metadata.vw_getEnumTag(this.handle);
-            let payload: RuntimeInstance;
+            let payload: RuntimeInstance | null = null;
 
             if (tag >= this.descriptor.getNumCases()) {
                 throw new Error("Invalid pointer for an enum of this type");
             }
 
             if (this.descriptor.isPayloadTag(tag)) {
-                const typeName = fields[tag].typeName;
+                const typeName = fields[tag].typeName!;
                 /* FIXME: metadata should be TargetMetadata, but it's abstract and TS disallows it */
                 const typeMetadata = metadataFor(typeName, TargetValueMetadata);
                 payload = RuntimeInstance.fromAdopted(
@@ -526,7 +526,7 @@ export class EnumValue implements ValueInstance {
     }
 
     get $payload(): RuntimeInstance {
-        return this.#payload;
+        return this.#payload!;
     }
 
     equals(e: EnumValue): boolean {
@@ -600,7 +600,7 @@ export class ObjectInstance extends RuntimeInstance {
                     Object.defineProperty(this, parsed.memberName, {
                         configurable: true,
                         enumerable: true,
-                        set: setter as (any) => void,
+                        set: setter // as (any) => void,
                     });
                     break;
                 }
@@ -658,12 +658,12 @@ function getFieldsDetails(
     const result: FieldDetails[] = [];
 
     if (!descriptor.isReflectable()) {
-        return undefined;
+        return result; //return undefined;
     }
 
     const fieldsDescriptor = new FieldDescriptor(descriptor.fields.get());
     if (fieldsDescriptor.numFields === 0) {
-        return undefined;
+        return result; //return undefined;
     }
 
     const fields = fieldsDescriptor.getFields();
@@ -727,7 +727,7 @@ function resolveSymbolicReferences(symbol: NativePointer): string {
     const base = symbol;
     let end = base;
     let endValue = end.readU8();
-    let contextDescriptor: TargetTypeContextDescriptor = null;
+    let contextDescriptor: TargetTypeContextDescriptor | null = null;
 
     while (endValue !== 0) {
         if (endValue >= 0x01 && endValue <= 0x17) {
@@ -735,10 +735,10 @@ function resolveSymbolicReferences(symbol: NativePointer): string {
 
             if (endValue === 0x01) {
                 contextDescriptor = new TargetTypeContextDescriptor(
-                    RelativeDirectPointer.From(end).get()
+                    RelativeDirectPointer.From(end)!.get()
                 );
             } else if (endValue === 0x02) {
-                let p = RelativeDirectPointer.From(end).get().readPointer();
+                let p = RelativeDirectPointer.From(end)!.get().readPointer();
                 p = p.and(0x7ffffffffff); // TODO: strip PAC
 
                 contextDescriptor = new TargetTypeContextDescriptor(p);
