@@ -3,11 +3,11 @@
     "version": "1.0.0",
     "description": "Swift runtime interop from Frida",
     "type": "module",
-    "main": "index.ts",
-    "main2": "agent/index.ts",
+    "main": "agent/index.ts",
+    "main1": "index.ts",
     "scripts": {
         "prepare": "npm run build",
-        "build": "frida-compile index.ts -o _agent.js -c",
+        "build": "frida-compile agent/index.ts -o _agent.js -c",
         "watch": "frida-compile agent/index.ts -o _agent.js -w"
     },
     "devDependencies": {

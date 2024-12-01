@@ -137,7 +137,8 @@ export namespace SwiftInterceptor {
                         const sizeQWords = sizeInQWordsRounded(size);
                         const raw: RawFields = [];
                         for (let i = 0; i != sizeQWords; i++) {
-                            raw.push((this.context as Arm64CpuContext)[`x${i}`]);
+                            // @ts-ignore
+                            raw.push(this.context[`x${i}`]);
                         }
                         buf = makeBufferFromValue(raw);
                     } else {
@@ -165,7 +166,8 @@ export namespace SwiftInterceptor {
                             const raw: RawFields = [];
 
                             for (let i = 0; i < sizeQWords; i++) {
-                                raw.push(((this.context as Arm64CpuContext)[`x${i}`]) as PointerSized);
+                                // @ts-ignore
+                                raw.push(this.context[`x${i}`]);
                             }
 
                             swiftyRetval = ValueInstance.fromRaw(
@@ -188,6 +190,7 @@ export namespace SwiftInterceptor {
 
         return Interceptor.attach(target, {
             onEnter,
+        // @ts-ignore
             onLeave,
         });
     }
