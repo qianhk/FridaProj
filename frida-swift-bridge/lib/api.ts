@@ -44,9 +44,11 @@ export function getApi(): Api {
 
 export function getPrivateAPI(): Api {
     if (cachedPrivateAPI !== null) {
+        // console.log('getPrivateAPI() cachedPrivateAPI !== null')
         return cachedPrivateAPI;
     }
 
+    console.log('getPrivateAPI() ensureInitialized CoreFoundation')
     Module.ensureInitialized("CoreFoundation");
 
     if (Process.findModuleByName("CoreSymbolication") === null) {

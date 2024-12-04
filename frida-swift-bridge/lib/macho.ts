@@ -56,6 +56,7 @@ const demangledSymbols = new Map<string, string>();
 /* XXX: Ugly hack(TM) until we lazily-parse MachOs */
 if (Process.arch === "arm64" && Process.platform === "darwin") {
     for (const module of allModules.values()) {
+        // console.log(`Module inst name is: ${module.name} path: ${module.path}`);
         for (const descriptor of enumerateTypeDescriptors(module)) {
             /* TODO: figure out why multiple descriptors could have the same name */
             fullTypeDataMap[descriptor.getFullTypeName()] = {

@@ -3,3 +3,5 @@
 /node_modules/
 /test/build/
 /test/node_modules/
+
+agent/test_sth.ts
