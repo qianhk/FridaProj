@@ -17,6 +17,7 @@ __handlers__/
 
 # Log files
 *.log
+*.log2
 
 # Package files
 *.jar
